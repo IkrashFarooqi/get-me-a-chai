@@ -51,8 +51,12 @@ const Dashboard = () => {
                     <input id="Cpic" className='w-full p-2 rounded-lg bg-slate-800' type="text" />
                 </div>
                 <div className="flex gap-1 m-2 flex-col">
-                    <label htmlFor="bank">JazzCash Credientials</label>
-                    <input id="bank" className='w-full p-2 rounded-lg bg-slate-800' type="text" />
+                    <label htmlFor="bankId">Razerpay ID</label>
+                    <input id="bankId" className='w-full p-2 rounded-lg bg-slate-800' type="text" />
+                </div>
+                <div className="flex gap-1 m-2 flex-col">
+                    <label htmlFor="bankSecret">Razerpay Secret</label>
+                    <input id="bankSecret" className='w-full p-2 rounded-lg bg-slate-800' type="text" />
                 </div>
                 <div className="flex gap-1 mx-2 my-4 flex-col">
                     <button className="w-full items-center justify-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 cursor-pointer rounded-lg text-sm focus:outline-none p-2" >Save</button>
