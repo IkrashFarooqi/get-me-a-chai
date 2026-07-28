@@ -10,5 +10,4 @@ const paymentSchema = new Schema({
     done: { type: Boolean, default: false }
 }, { timestamps: true })
 
-const Payment = model("Payment", paymentSchema)
-export default mongoose.models.Payment || Payment
+export default mongoose.models.Payment || model("Payment", paymentSchema)

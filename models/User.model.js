@@ -9,5 +9,4 @@ const userSchema = new Schema({
     coverPic: { type: String },
 }, { timestamps: true })
 
-const User = model("User", userSchema)
-export default mongoose.models.User || User
+export default mongoose.models.User || model("User", userSchema)
