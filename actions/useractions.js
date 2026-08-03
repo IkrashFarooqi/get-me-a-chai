@@ -1,44 +1,97 @@
 "use server"
-import Razorpay from "razorpay"
+
+import Safepay from "@sfpy/node-core"
 import Payment from "@/models/Payment.model"
-import connectDB from "@/db/connectDB"
 import User from "@/models/User.model"
+import connectDB from "@/db/connectDB"
+
+const safepay = new Safepay(process.env.SAFEPAY_SECRET_KEY, {
+    authType: "secret",
+    host: "https://sandbox.api.getsafepay.com"
+})
 
 export const initiate = async (amount, to_username, paymentform) => {
-    try {
-        await connectDB();
 
-        console.log("KEY_ID:", process.env.KEY_ID)
-        console.log("KEY_SECRET:", process.env.KEY_SECRET ? "Loaded" : "Missing")
-        const instance = new Razorpay({
-            key_id: process.env.KEY_ID,
-            key_secret: process.env.KEY_SECRET,
-        });
+    await connectDB()
 
-        const options = {
-            amount: Number(amount),
-            currency: "INR",
-        };
+    const user = await User.findOne({
+        username: to_username
+    })
 
-        console.log("Options:", options);
-
-        const order = await instance.orders.create(options);
-
-        console.log("Order:", order);
-
-        await Payment.create({
-            oid: order.id,
-            amount,
-            to_username,
-            name: paymentform.name,
-            message: paymentform.message,
-        });
-
-        return order;
-    } catch (err) {
-        console.error("Razorpay Error:", err);
-        console.error("Response:", err.error);
-        console.error("Status:", err.statusCode);
-        throw err;
+    if (!user) {
+        throw new Error("User not found")
     }
-};
+
+    // Create Passport Token
+    const passport = await safepay.client.passport.create()
+
+    const tbt = passport.data
+
+    // Create Payment Session
+    const session = await safepay.payments.session.setup({
+
+        merchant_api_key: process.env.SAFEPAY_API_KEY,
+
+        intent: "CYBERSOURCE",
+
+        mode: "payment",
+
+        entry_mode: "raw",
+
+        currency: "PKR",
+
+        amount: Number(amount),
+
+        metadata: {
+
+            order_id: Date.now().toString()
+
+        },
+
+        include_fees: false
+
+    })
+
+    const tracker = session.data.tracker.token
+
+    const checkoutUrl = safepay.checkout.createCheckoutUrl({
+
+        env: "sandbox",
+
+        tracker,
+
+        tbt,
+
+        source: "hosted",
+
+        redirect_url: `${process.env.NEXT_PUBLIC_URL}/success`,
+
+        cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`
+
+    })
+
+    await Payment.create({
+
+        oid: tracker,
+
+        tracker,
+
+        amount,
+
+        to_user: to_username,
+
+        name: paymentform.name,
+
+        message: paymentform.message,
+
+        done: false
+
+    })
+
+    return {
+
+        checkoutUrl
+
+    }
+
+}

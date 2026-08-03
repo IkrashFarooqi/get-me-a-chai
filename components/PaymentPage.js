@@ -1,7 +1,6 @@
 "use client"
 import { initiate } from "@/actions/useractions"
 import { useState } from "react"
-import Script from "next/script"
 import { useSession } from "next-auth/react"
 
 const PaymentPage = ({ username }) => {
@@ -12,44 +11,33 @@ const PaymentPage = ({ username }) => {
     const handleChange = (e) => {
         setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
     }
-
     const pay = async (amount) => {
-        // orderid
-        let a = await initiate(amount, username, paymentform);
-        let orderId = a.id
-        
-        var options = {
-            "key": process.env.NEXT_PUBLIC_KEY_ID, // Enter the Key ID generated from the Dashboard
-            "amount": amount, // Amount is in currency subunits.
-            "currency": "INR",
-            "name": "Get Me A Chai", //your business name
-            "description": "Test Transaction",
-            "image": "https://example.com/your_logo",
-            "order_id": orderId, // This is a sample Order ID. Pass the id obtained in the response of Step 1
-            "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
-            "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-                "name": "Ikrash", //your customer's name
-                "email": "ikrashfarooqi22@gmail.com",
-                "contact": "923304590450" //Provide the customer's phone number for better conversion rates 
-            },
-            "notes": {
-                "address": "Razorpay Corporate Office"
-            },
-            "theme": {
-                "color": "#3399cc"
+        try {
+
+            const response = await initiate(
+                amount,
+                username,
+                paymentform
+            )
+
+            if (!response?.checkoutUrl) {
+                alert("Unable to start payment.")
+                return
             }
+
+            // Redirect to Safepay Checkout
+            window.location.href = response.checkoutUrl
+
+        } catch (err) {
+
+            console.error(err)
+
+            alert("Something went wrong while creating payment.")
+
         }
-        var rzp1 = new window.Razorpay(options)
-        if (!window.Razorpay) {
-            alert("Razorpay SDK is still loading.");
-            return;
-        }
-        rzp1.open();
     }
     return (
         <>
-            <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
-
             <div className='cover w-full bg-amber-50 relative'>
                 <img className='object-cover w-full h-62.5' src="https://c10.patreonusercontent.com/4/patreon-media/p/campaign/4794108/8e256b2f7f064d8d9605ff1de7973541/eyJ3IjoxMjAwLCJ3ZSI6MX0%3D/12.JPG?token-hash=4b85uokJ5yVjsKVQmkmwxQ0Ow6Gp5uW7a85l4zsMZrQ%3D&token-time=1785801600" alt="faaa" />
 
