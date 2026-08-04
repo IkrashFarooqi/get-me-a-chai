@@ -1,62 +1,104 @@
-"use client"
-import Link from "next/link"
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { fetchPaymentByTracker } from "@/actions/useractions";
 
-export default function PaymentFailed() {
+export default async function PaymentFailed({ searchParams }) {
+
+    const { tracker } = await searchParams;
+
+    if (!tracker) {
+        notFound();
+    }
+
+    const payment = await fetchPaymentByTracker(tracker);
+
+    if (!payment || payment.status !== "failed") {
+        notFound();
+    }
+
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
 
-            <div className="w-full max-w-lg rounded-2xl border border-red-500/20 bg-zinc-900 p-8 shadow-xl">
+            <div className="w-full max-w-xl bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-8">
 
-                <div className="flex justify-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 text-5xl">
+                <div className="text-center">
+
+                    <div className="text-6xl mb-4">
                         ❌
                     </div>
-                </div>
 
-                <h1 className="mt-6 text-center text-3xl font-bold text-white">
-                    Payment Failed
-                </h1>
+                    <h1 className="text-3xl font-bold text-red-500">
+                        Payment Failed
+                    </h1>
 
-                <p className="mt-3 text-center text-zinc-400">
-                    Unfortunately, we couldn't complete your payment.
-                    No money has been charged, or your transaction could not be verified.
-                </p>
-
-                <div className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-
-                    <h2 className="text-lg font-semibold text-white">
-                        Possible Reasons
-                    </h2>
-
-                    <ul className="mt-4 space-y-3 text-sm text-zinc-400">
-                        <li>• Payment was cancelled.</li>
-                        <li>• Card was declined.</li>
-                        <li>• Network or connection issue.</li>
-                        <li>• Payment verification failed.</li>
-                    </ul>
+                    <p className="text-slate-400 mt-2">
+                        Your payment could not be completed.
+                    </p>
 
                 </div>
 
-                <div className="mt-8 flex gap-4">
+                <div className="mt-8 space-y-4">
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Name</span>
+                        <span className="font-semibold">{payment.name}</span>
+                    </div>
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Recipient</span>
+                        <span className="font-semibold">@{payment.to_user}</span>
+                    </div>
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Amount</span>
+                        <span className="font-semibold text-red-400">
+                            Rs. {payment.amount}
+                        </span>
+                    </div>
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Message</span>
+                        <span className="font-semibold text-right max-w-[60%]">
+                            {payment.message || "No message"}
+                        </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                        <span className="text-slate-400">Date</span>
+                        <span className="font-semibold">
+                            {new Date(payment.createdAt).toLocaleString()}
+                        </span>
+                    </div>
+
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mt-10">
 
                     <Link
                         href="/"
-                        className="flex-1 rounded-lg border cursor-pointer border-zinc-700 py-3 text-center font-semibold text-white transition hover:bg-zinc-800"
+                        className="text-center bg-slate-800 hover:bg-slate-700 transition rounded-lg py-3 font-semibold"
                     >
-                        Go Home
+                        🏠 Home
                     </Link>
 
-                    <button
-                        onClick={() => window.history.back()}
-                        className="flex-1 rounded-lg cursor-pointer bg-red-600 py-3 text-center font-semibold text-white transition hover:bg-red-700"
+                    <Link
+                        href={`/${payment.to_user}`}
+                        className="text-center bg-yellow-600 hover:bg-yellow-700 transition rounded-lg py-3 font-semibold"
                     >
-                        Try Again
-                    </button>
+                        🔄 Try Again
+                    </Link>
+
+                    <Link
+                        href="/contact"
+                        className="text-center bg-red-600 hover:bg-red-700 transition rounded-lg py-3 font-semibold"
+                    >
+                        🆘 Support
+                    </Link>
 
                 </div>
 
             </div>
 
         </div>
-    )
+    );
 }

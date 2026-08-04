@@ -29,27 +29,16 @@ export const initiate = async (amount, to_username, paymentform) => {
 
     // Create Payment Session
     const session = await safepay.payments.session.setup({
-
         merchant_api_key: process.env.SAFEPAY_API_KEY,
-
         intent: "CYBERSOURCE",
-
         mode: "payment",
-
         entry_mode: "raw",
-
         currency: "PKR",
-
-        amount: Number(amount),
-
+        amount: Number(amount) * 100,
         metadata: {
-
             order_id: Date.now().toString()
-
         },
-
         include_fees: false
-
     })
 
     const tracker = session.data.tracker.token
@@ -71,27 +60,25 @@ export const initiate = async (amount, to_username, paymentform) => {
     })
 
     await Payment.create({
-
-        oid: tracker,
-
         tracker,
-
         amount,
-
         to_user: to_username,
-
         name: paymentform.name,
-
         message: paymentform.message,
-
-        done: false
-
+        status: "pending"
     })
 
     return {
-
         checkoutUrl
-
     }
+}
+
+export const fetchPaymentByTracker = async (tracker) => {
+
+    await connectDB();
+
+    const payment = await Payment.findOne({ tracker }).lean();
+
+    return payment;
 
 }

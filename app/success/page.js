@@ -1,62 +1,97 @@
-"use client"
-import Link from "next/link"
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { fetchPaymentByTracker } from "@/actions/useractions";
 
-export default function PaymentSuccess() {
+export default async function PaymentSuccess({ searchParams }) {
+
+    const { tracker } = await searchParams;
+
+    if (!tracker) {
+        notFound();
+    }
+
+    const payment = await fetchPaymentByTracker(tracker);
+
+    if (!payment || payment.status !== "success") {
+        notFound();
+    }
+
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
 
-            <div className="w-full max-w-lg rounded-2xl border border-green-500/20 bg-zinc-900 p-8 shadow-xl">
+            <div className="w-full max-w-xl bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-8">
 
-                <div className="flex justify-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 text-5xl">
-                        ✅
+                <div className="text-center">
+
+                    <div className="text-6xl mb-4">
+                        🎉
                     </div>
-                </div>
 
-                <h1 className="mt-6 text-center text-3xl font-bold text-white">
-                    Payment Successful
-                </h1>
+                    <h1 className="text-3xl font-bold text-green-500">
+                        Payment Successful
+                    </h1>
 
-                <p className="mt-3 text-center text-zinc-400">
-                    Thank you for your generous support! Your contribution has been
-                    received successfully and is greatly appreciated.
-                </p>
-
-                <div className="mt-8 rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-
-                    <h2 className="text-lg font-semibold text-white">
-                        Payment Completed
-                    </h2>
-
-                    <ul className="mt-4 space-y-3 text-sm text-zinc-400">
-                        <li>✔ Your payment has been processed successfully.</li>
-                        <li>✔ Your support has been recorded.</li>
-                        <li>✔ Thank you for helping the creator continue their work.</li>
-                    </ul>
+                    <p className="text-slate-400 mt-2">
+                        Thank you for your support!
+                    </p>
 
                 </div>
 
-                <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="mt-8 space-y-4">
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Name</span>
+                        <span className="font-semibold">{payment.name}</span>
+                    </div>
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Recipient</span>
+                        <span className="font-semibold">@{payment.to_user}</span>
+                    </div>
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Amount</span>
+                        <span className="font-semibold text-green-400">
+                            Rs. {payment.amount}
+                        </span>
+                    </div>
+
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                        <span className="text-slate-400">Message</span>
+                        <span className="font-semibold text-right max-w-[60%]">
+                            {payment.message || "No message"}
+                        </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                        <span className="text-slate-400">Date</span>
+                        <span className="font-semibold">
+                            {new Date(payment.createdAt).toLocaleString()}
+                        </span>
+                    </div>
+
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mt-10">
 
                     <Link
                         href="/"
-                        className="rounded-lg border cursor-pointer border-zinc-700 py-3 text-center font-semibold text-white transition hover:bg-zinc-800"
+                        className="text-center cursor-pointer bg-slate-800 hover:bg-slate-700 transition rounded-lg py-3 font-semibold"
                     >
                         🏠 Home
                     </Link>
 
                     <button
-                        onClick={() => window.print()}
-                        className="rounded-lg cursor-pointer bg-zinc-800 py-3 font-semibold text-white transition hover:bg-zinc-700"
+                        className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition rounded-lg py-3 font-semibold"
                     >
                         🖨️ Print
                     </button>
 
                     <Link
-                        href="/YOUR_CREATOR_PAGE"
-                        className="rounded-lg cursor-pointer bg-green-600 py-3 text-center font-semibold text-white transition hover:bg-green-700"
+                        href={`/${payment.to_user}`}
+                        className="text-center cursor-pointer bg-green-600 hover:bg-green-700 transition rounded-lg py-3 font-semibold"
                     >
-                        ❤️ Donate More
+                        💝 Donate More
                     </Link>
 
                 </div>
@@ -64,5 +99,5 @@ export default function PaymentSuccess() {
             </div>
 
         </div>
-    )
+    );
 }

@@ -12,6 +12,8 @@ const PaymentPage = ({ username }) => {
         setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
     }
     const pay = async (amount) => {
+        console.log("Pay button clicked");
+        alert("Pay button clicked");
         try {
 
             const response = await initiate(
@@ -39,7 +41,7 @@ const PaymentPage = ({ username }) => {
     return (
         <>
             <div className='cover w-full bg-amber-50 relative'>
-                <img className='object-cover w-full h-62.5' src="https://c10.patreonusercontent.com/4/patreon-media/p/campaign/4794108/8e256b2f7f064d8d9605ff1de7973541/eyJ3IjoxMjAwLCJ3ZSI6MX0%3D/12.JPG?token-hash=4b85uokJ5yVjsKVQmkmwxQ0Ow6Gp5uW7a85l4zsMZrQ%3D&token-time=1785801600" alt="faaa" />
+                <img className='object-cover w-full h-62.5' src="https://img.magnific.com/free-vector/stylish-glowing-digital-red-lines-banner_1017-23964.jpg?semt=ais_test_b&w=740&q=80" alt="faaa" />
 
             </div>
             <div className='w-28 h-28 left-[46%] absolute -translate-y-1/2 border-white border-2 rounded-full'>
