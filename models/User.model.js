@@ -7,6 +7,8 @@ const userSchema = new Schema({
     name: { type: String },
     profilePic: { type: String },
     coverPic: { type: String },
+    bankId: { type: String },
+    bankSecret: { type: String },
 }, { timestamps: true })
 
 export default mongoose.models.User || model("User", userSchema)

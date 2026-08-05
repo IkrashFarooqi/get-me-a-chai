@@ -82,3 +82,51 @@ export const fetchPaymentByTracker = async (tracker) => {
     return payment;
 
 }
+
+export const fetchPayments = async (username) => {
+    await connectDB()
+    // Find all payments sorted by decrising order of amount and flatten them 
+    const payments = await Payment.find(
+        {
+            to_user: username,
+            status: "success"
+        },
+        {
+            name: 1,
+            amount: 1,
+            message: 1,
+            _id: 0
+        }
+    )
+        .sort({ amount: -1 })
+        .lean();
+
+    return payments;
+}
+
+export const fetchUser = async (username) => {
+    await connectDB();
+
+    const user = await User.findOne({ username }).lean();
+
+    return JSON.parse(JSON.stringify(user));
+}
+
+export const updateProfile = async (data, oldusername) => {
+    await connectDB()
+    let ndata = Object.fromEntries(data)
+
+    // Check if username already exists
+    if (oldusername !== ndata.username) {
+        let u = await User.findOne({ username: ndata.username })
+        if (u) {
+            return error("Username already exists")
+        }
+    }
+
+    await User.updateOne({ email: ndata.email }, ndata)
+    await Payment.updateMany(
+        { to_user: oldusername },
+        { $set: { to_user: ndata.username } }
+    );
+}

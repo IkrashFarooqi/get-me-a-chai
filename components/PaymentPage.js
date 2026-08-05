@@ -1,19 +1,35 @@
 "use client"
 import { initiate } from "@/actions/useractions"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { fetchPayments } from "@/actions/useractions"
 
 const PaymentPage = ({ username }) => {
-    const { data: session } = useSession()
-
+    const [amountError, setAmountError] = useState("");
     const [paymentform, setPaymentform] = useState({ name: "", message: "", amount: "" })
+    const [payments, setPayments] = useState([])
 
     const handleChange = (e) => {
         setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
     }
+
+    const getData = async () => {
+        let dbPayments = await fetchPayments(username)
+        setPayments(dbPayments)
+        console.log("All payments", dbPayments)
+    }
+    useEffect(() => {
+        getData();
+    }, []);
+
     const pay = async (amount) => {
-        console.log("Pay button clicked");
-        alert("Pay button clicked");
+        if (amount <= 0) {
+            setAmountError("Amount must be greater than 0.");
+            return;
+        }
+
+        setAmountError("");
+
         try {
 
             const response = await initiate(
@@ -62,24 +78,22 @@ const PaymentPage = ({ username }) => {
                         {/* Show list of all the supporters as a leaderboard */}
                         <h2 className='text-2xl font-bold'>Supporters</h2>
                         <ul>
-                            <li className='my-4 mx-4 flex items-center gap-2'>
-                                <img width={33} src="avatar.gif" alt="user avatar" />
-                                <span>
-                                    Ahad donated <span className='font-bold'>Rs.20</span> with a message "I support you. Lots of ❤️"
-                                </span>
-                            </li>
-                            <li className='my-4 mx-4 flex items-center gap-2'>
-                                <img width={33} src="avatar.gif" alt="user avatar" />
-                                <span>
-                                    Ahad donated <span className='font-bold'>Rs.20</span> with a message "I support you. Lots of ❤️"
-                                </span>
-                            </li>
-                            <li className='my-4 mx-4 flex items-center gap-2'>
-                                <img width={33} src="avatar.gif" alt="user avatar" />
-                                <span>
-                                    Ahad donated <span className='font-bold'>Rs.20</span> with a message "I support you. Lots of ❤️"
-                                </span>
-                            </li>
+                            {payments?.length > 0 ? (
+                                payments.map((payment, index) => (
+                                    <li key={index} className="my-4 mx-4 flex items-center gap-2">
+                                        <img width={33} src="/avatar.gif" alt="user avatar" />
+                                        <span>
+                                            <span className="font-bold">{payment.name}</span> donated{" "}
+                                            <span className="font-bold">Rs. {payment.amount}</span>
+                                            {payment.message && <> with a message "{payment.message}"</>}
+                                        </span>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="my-4 text-slate-400">
+                                    🌟 Be the first supporter to donate!
+                                </li>
+                            )}
                         </ul>
                     </div>
                     <div className="makePayment flex flex-col gap-2 w-1/2 bg-slate-900 rounded-lg p-8">
@@ -88,7 +102,12 @@ const PaymentPage = ({ username }) => {
                         <input onChange={handleChange} value={paymentform.name || ""} name="name" className='w-full p-3 rounded-lg bg-slate-800' type="text" placeholder='Enter Name' />
                         <input onChange={handleChange} value={paymentform.message || ""} name="message" className='w-full p-3 rounded-lg bg-slate-800' type="text" placeholder='Enter message' />
                         <div className="flex gap-2">
-                            <input onChange={handleChange} value={paymentform.amount || ""} name="amount" className='w-full p-3 rounded-lg bg-slate-800' type="number" placeholder='Enter amount' />
+                            <input onChange={handleChange} value={paymentform.amount || ""} name="amount" className='w-full p-3 rounded-lg bg-slate-800' type="number" placeholder='Enter amount' min="1" step="1" />
+                            {amountError && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {amountError}
+                                </p>
+                            )}
                             <button className="text-white bg-linear-to-br from-purple-600 to-blue-500 hover:bg-linear-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center leading-5 cursor-pointer me-2 mb-2" onClick={() => pay(Number(paymentform.amount))}>Pay</button>
                         </div>
                         <div>
