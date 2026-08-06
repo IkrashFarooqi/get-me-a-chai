@@ -27,7 +27,7 @@ const Navbar = () => {
     }, [])
 
     return (
-        <nav className="bg-blue-950 text-white flex justify-between items-center px-4 h-16">
+        <nav className="bg-blue-950 text-white flex flex-row max-[430px]:flex-col justify-between items-center px-4 md:h-16">
             <Link
                 href="/"
                 className="logo font-bold text-lg flex justify-center items-center"
@@ -43,7 +43,7 @@ const Navbar = () => {
                             onClick={() => setShowdropdown(!showdropdown)}
                             className="inline-flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 rounded-lg text-sm px-4 py-2.5 mx-2"
                         >
-                            Welcome {session.user.email}
+                            Welcome {session.user.name || session.user.email}
                             <svg
                                 className="w-4 h-4 ms-1.5"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -61,9 +61,8 @@ const Navbar = () => {
                         </button>
 
                         <div
-                            className={`absolute right-0 mt-2 w-44 bg-gray-700 rounded-lg shadow-lg z-50 ${
-                                showdropdown ? "" : "hidden"
-                            }`}
+                            className={`absolute right-0 mt-2 w-44 bg-gray-700 rounded-lg shadow-lg z-50 ${showdropdown ? "" : "hidden"
+                                }`}
                         >
                             <ul className="py-2 text-sm">
                                 <li>
@@ -99,7 +98,7 @@ const Navbar = () => {
                     </>
                 ) : (
                     <Link href="/login">
-                        <button className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl font-medium rounded-lg text-sm px-4 py-2.5">
+                        <button className="text-white bg-linear-to-br from-purple-600 to-blue-500 hover:bg-linear-to-bl font-medium rounded-lg text-sm px-4 py-2.5">
                             Login
                         </button>
                     </Link>
