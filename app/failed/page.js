@@ -102,3 +102,7 @@ export default async function PaymentFailed({ searchParams }) {
         </div>
     );
 }
+export const metadata = {
+    title: "Payment Failed - Get Me A Chai",
+  }
+   

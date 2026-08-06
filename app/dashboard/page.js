@@ -8,8 +8,6 @@ import { updateProfile, fetchUser } from "@/actions/useractions"
 const Dashboard = () => {
     const { data: session, update, status } = useSession()
     const [form, setform] = useState({})
-    console.log("status:", status);
-    console.log("session:", session);
     const router = useRouter()
 
 

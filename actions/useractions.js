@@ -5,11 +5,6 @@ import Payment from "@/models/Payment.model"
 import User from "@/models/User.model"
 import connectDB from "@/db/connectDB"
 
-const safepay = new Safepay(process.env.SAFEPAY_SECRET_KEY, {
-    authType: "secret",
-    host: "https://sandbox.api.getsafepay.com"
-})
-
 export const initiate = async (amount, to_username, paymentform) => {
 
     await connectDB()
@@ -22,6 +17,14 @@ export const initiate = async (amount, to_username, paymentform) => {
         throw new Error("User not found")
     }
 
+    const secret = user?.bankSecret
+    const apiKey = user?.bankId
+
+    const safepay = new Safepay(secret, {
+        authType: "secret",
+        host: "https://sandbox.api.getsafepay.com"
+    })
+
     // Create Passport Token
     const passport = await safepay.client.passport.create()
 
@@ -29,7 +32,7 @@ export const initiate = async (amount, to_username, paymentform) => {
 
     // Create Payment Session
     const session = await safepay.payments.session.setup({
-        merchant_api_key: process.env.SAFEPAY_API_KEY,
+        merchant_api_key: apiKey,
         intent: "CYBERSOURCE",
         mode: "payment",
         entry_mode: "raw",
@@ -55,7 +58,7 @@ export const initiate = async (amount, to_username, paymentform) => {
 
         redirect_url: `${process.env.NEXT_PUBLIC_URL}/success`,
 
-        cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`
+        cancel_url: `${process.env.NEXT_PUBLIC_URL}/${to_username}`,
 
     })
 
@@ -99,6 +102,7 @@ export const fetchPayments = async (username) => {
         }
     )
         .sort({ amount: -1 })
+        .limit(10)
         .lean();
 
     return payments;

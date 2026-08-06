@@ -101,3 +101,8 @@ export default async function PaymentSuccess({ searchParams }) {
         </div>
     );
 }
+
+export const metadata = {
+    title: "Payment Success - Get Me A Chai",
+  }
+   
