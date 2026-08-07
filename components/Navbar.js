@@ -86,6 +86,16 @@ const Navbar = () => {
                                 </li>
 
                                 <li>
+                                    <Link
+                                        href="/about"
+                                        onClick={() => setShowdropdown(false)}
+                                        className="block px-4 py-2 hover:bg-gray-600"
+                                    >
+                                        About
+                                    </Link>
+                                </li>
+
+                                <li>
                                     <button
                                         onClick={() => signOut()}
                                         className="w-full text-left px-4 py-2 hover:bg-gray-600"
